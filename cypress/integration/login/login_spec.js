@@ -1,0 +1,65 @@
+require('cypress-xpath');
+var constants = require('../constants');
+var user = require('../users');
+
+describe('LOGIN:', function() {
+  beforeEach(() => {
+    cy.clearCookies() 
+    cy.clearLocalStorage()
+    cy.visit('https://signon.qasiteprotect.com/')
+  })
+
+  it('Valid NEUSTAR/SOC User', function() {
+      cy.get(constants.USERNAME)
+        .type(user.LDAP)
+      cy.get(constants.SUBMIT_BTN)
+        .click()
+      cy.get(constants.PASSWORD)
+        .type(user.LDAP_PASSWORD)
+      cy.get(constants.SUBMIT_BTN)
+        .click()
+      cy.url().should('eq', 'https://config.qasiteprotect.com/')
+      cy.wait(1000)
+      cy.xpath(constants.SOC_MENU)
+        .should('have.attr', 'href')
+        .and('include', 'soc.qasiteprotect.com')
+  })
+  it('Valid Direct Customer User', function() {
+    cy.get(constants.USERNAME)
+      .type(user.DIRECT_CUST)
+    cy.get(constants.PASSWORD)
+      .type(user.PASSWORD)
+    cy.get(constants.SUBMIT_BTN)
+      .click()
+    cy.url().should('eq', 'https://config.qasiteprotect.com/')
+  })
+  it('Valid Reseller Customer User', function() {
+    cy.get(constants.USERNAME)
+      .type(user.RESELLER)
+    cy.get(constants.PASSWORD)
+      .type(user.PASSWORD)
+    cy.get(constants.SUBMIT_BTN)
+      .click()
+    cy.url().should('eq', 'https://config.qasiteprotect.com/')
+  })
+  it('Invalid User Password', function() {
+    cy.get(constants.USERNAME)
+      .type(user.DIRECT_CUST)
+    cy.get(constants.PASSWORD)
+      .type('Vader')
+    cy.get(constants.SUBMIT_BTN)
+      .click()
+    cy.xpath(constants.ERROR_BANNER)
+      .should('have.text', 'Wrong email or password.')
+  })
+  it('Invalid User', function() {
+    cy.get(constants.USERNAME)
+      .type('test@team.com')
+    cy.get(constants.PASSWORD)
+      .type('Vader')
+    cy.get(constants.SUBMIT_BTN)
+      .click()
+    cy.xpath(constants.ERROR_BANNER)
+      .should('have.text', 'Wrong email or password.')
+  })
+})
